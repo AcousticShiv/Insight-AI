@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Insights Dashboard</title>
+    <meta name="description" content="Analyze customer comments for sentiment and topics.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chart.js for Visualizations -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- PapaParse for CSV parsing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-background"></div>
+    <div class="app-container">
+        <header>
+            <div class="header-content">
+                <div class="logo">
+                    <div class="logo-icon">✨</div>
+                    <h1>Insights<span class="highlight">AI</span></h1>
+                </div>
+                <p class="subtitle">Understand your customers instantly.</p>
+            </div>
+            
+            <div class="upload-section">
+                <div class="upload-dropzone" id="dropzone">
+                    <div class="upload-icon">📄</div>
+                    <h3>Upload Customer Data</h3>
+                    <p>Drag & drop your CSV file here, or click to browse</p>
+                    <p class="small-text">(Must contain an "NPS COMMENT" column)</p>
+                    <input type="file" id="fileInput" accept=".csv" style="display: none;">
+                    <button class="btn-primary" onclick="document.getElementById('fileInput').click()">Select File</button>
+                    <button class="btn-secondary" id="loadSampleBtn">Load Sample Data</button>
+                </div>
+            </div>
+        </header>
+
+        <main id="dashboard" class="hidden">
+            <div class="dashboard-header">
+                <h2>Analysis Results</h2>
+                <div class="stats-row">
+                    <div class="stat-card">
+                        <span class="stat-value" id="totalComments">0</span>
+                        <span class="stat-label">Total Comments</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-value text-positive" id="positivePerc">0%</span>
+                        <span class="stat-label">Positive</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-value text-negative" id="negativePerc">0%</span>
+                        <span class="stat-label">Negative</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-layout">
+                <aside class="sidebar glass-panel">
+                    <h3>Filters</h3>
+                    <div class="filter-group">
+                        <label for="npsFilter" style="display:block; margin-bottom:0.5rem; color:var(--text-muted); font-size:0.9rem;">NPS Score</label>
+                        <select id="npsFilter" style="width:100%; padding:0.5rem; border-radius:0.5rem; background:rgba(15,23,42,0.6); color:var(--text-main); border:1px solid var(--panel-border); margin-bottom:1rem; outline:none; font-family:var(--font-family);">
+                            <option value="all">All Scores</option>
+                            <option value="promoters">Promoters (9-10)</option>
+                            <option value="passives">Passives (7-8)</option>
+                            <option value="detractors">Detractors (0-6)</option>
+                        </select>
+                    </div>
+                    <div id="activeFilters" class="active-filters" style="display:flex; flex-wrap:wrap; gap:0.5rem;"></div>
+                    <button id="clearFiltersBtn" class="btn-secondary" style="width: 100%; margin-top: 1rem; display: none; padding:0.5rem; font-size:0.9rem;">Clear Filters</button>
+                    <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--panel-border);">
+                        <p class="small-text" style="color: var(--text-muted); opacity: 0.8; line-height: 1.5;">💡 Tip: Click on sections of the charts to interactively filter the detailed comments below.</p>
+                    </div>
+                </aside>
+                
+                <div class="main-content">
+                    <div class="charts-grid">
+                        <div class="chart-container glass-panel">
+                    <h3>Sentiment Distribution</h3>
+                    <div class="canvas-wrapper">
+                        <canvas id="sentimentChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-container glass-panel">
+                    <h3>Topic Breakdown</h3>
+                    <div class="canvas-wrapper">
+                        <canvas id="topicChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-container glass-panel">
+                <h3>Detailed Comments</h3>
+                <div class="table-wrapper">
+                    <table id="resultsTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Email</th>
+                                <th>NPS</th>
+                                <th>Comment</th>
+                                <th>Sentiment</th>
+                                <th>Topic</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            <!-- Data will be injected here -->
+                        </tbody>
+                    </table>
+                </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
