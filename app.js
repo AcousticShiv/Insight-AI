@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const npsFilter = document.getElementById('npsFilter');
     const activeFiltersContainer = document.getElementById('activeFilters');
     const clearFiltersBtn = document.getElementById('clearFiltersBtn');
+    const themeToggle = document.getElementById('themeToggle');
 
     // State
     const appState = {
@@ -146,11 +147,20 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        function generateSummary(text) {
+            if (!text) return "";
+            let sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
+            let firstSentence = sentences[0].trim();
+            if (firstSentence.length > 50) return firstSentence.substring(0, 47) + "...";
+            return firstSentence;
+        }
+
         appState.allData = data.map(row => {
             const comment = row[commentKey] || '';
             const analysis = analyzeText(comment);
             return {
                 id: row[idKey] || '-',
+                summary: generateSummary(comment),
                 email: row[emailKey] || '-',
                 npsScore: row[npsKey] || '-',
                 comment: comment,
@@ -163,6 +173,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // UI Event Listeners for Filters
+    if (themeToggle) {
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('light-mode');
+            const isLight = document.body.classList.contains('light-mode');
+            themeToggle.innerHTML = isLight ? '🌙 Dark Mode' : '☀️ Light Mode';
+            applyFiltersAndRender(false); // Re-render charts with new theme colors
+        });
+    }
+
     if (npsFilter) {
         npsFilter.addEventListener('change', (e) => {
             appState.filters.nps = e.target.value;
@@ -196,17 +215,13 @@ document.addEventListener('DOMContentLoaded', () => {
             return true;
         });
 
-        let stats = { total: npsFiltered.length, positive: 0, negative: 0, neutral: 0, topics: {} };
+        let chartStats = { total: npsFiltered.length, positive: 0, negative: 0, neutral: 0, topics: {} };
         npsFiltered.forEach(item => {
-            stats[item.sentiment.toLowerCase()]++;
-            stats.topics[item.topic] = (stats.topics[item.topic] || 0) + 1;
+            chartStats[item.sentiment.toLowerCase()]++;
+            chartStats.topics[item.topic] = (chartStats.topics[item.topic] || 0) + 1;
         });
 
-        document.getElementById('totalComments').innerText = stats.total;
-        document.getElementById('positivePerc').innerText = stats.total ? Math.round((stats.positive / stats.total) * 100) + '%' : '0%';
-        document.getElementById('negativePerc').innerText = stats.total ? Math.round((stats.negative / stats.total) * 100) + '%' : '0%';
-
-        renderCharts(stats);
+        renderCharts(chartStats);
 
         // Filter Table by chart selections
         let tableData = npsFiltered.filter(item => {
@@ -214,6 +229,16 @@ document.addEventListener('DOMContentLoaded', () => {
             let tMatch = appState.filters.topic ? item.topic === appState.filters.topic : true;
             return sMatch && tMatch;
         });
+
+        // Compute KPIs based on final tableData (interactive)
+        let kpiStats = { total: tableData.length, positive: 0, negative: 0, neutral: 0 };
+        tableData.forEach(item => {
+            kpiStats[item.sentiment.toLowerCase()]++;
+        });
+
+        document.getElementById('totalComments').innerText = kpiStats.total;
+        document.getElementById('positivePerc').innerText = kpiStats.total ? Math.round((kpiStats.positive / kpiStats.total) * 100) + '%' : '0%';
+        document.getElementById('negativePerc').innerText = kpiStats.total ? Math.round((kpiStats.negative / kpiStats.total) * 100) + '%' : '0%';
 
         renderTable(tableData);
         renderActiveFiltersUI();
@@ -262,6 +287,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td>${item.email}</td>
                 <td><span class="badge ${npsClass}">${item.npsScore}</span></td>
                 <td>${item.comment}</td>
+                <td style="font-style: italic; color: var(--text-muted);">${item.summary}</td>
                 <td><span class="badge ${sentimentClass}">${item.sentiment}</span></td>
                 <td><span class="badge badge-topic">${item.topic}</span></td>
             `;
@@ -270,6 +296,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderCharts(stats) {
+        const isLight = document.body.classList.contains('light-mode');
+        const textColor = isLight ? '#0f172a' : '#f8fafc';
+        const gridColor = isLight ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.1)';
+
         // Chart Configs
         const commonOptions = {
             responsive: true,
@@ -280,7 +310,7 @@ document.addEventListener('DOMContentLoaded', () => {
             plugins: {
                 legend: {
                     position: 'bottom',
-                    labels: { color: '#f8fafc', padding: 20, font: { family: "'Inter', sans-serif" } }
+                    labels: { color: textColor, padding: 20, font: { family: "'Inter', sans-serif" } }
                 }
             }
         };
@@ -354,11 +384,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 scales: {
                     y: { 
                         beginAtZero: true, 
-                        ticks: { stepSize: 1, color: '#94a3b8' },
-                        grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                        ticks: { stepSize: 1, color: isLight ? '#475569' : '#94a3b8' },
+                        grid: { color: gridColor }
                     },
                     x: {
-                        ticks: { color: '#94a3b8' },
+                        ticks: { color: isLight ? '#475569' : '#94a3b8' },
                         grid: { display: false }
                     }
                 },

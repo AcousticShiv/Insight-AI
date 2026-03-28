@@ -19,7 +19,8 @@
     <div class="app-background"></div>
     <div class="app-container">
         <header>
-            <div class="header-content">
+            <div class="header-content" style="position: relative; width: 100%; display: flex; flex-direction: column; align-items: center;">
+                <button id="themeToggle" class="btn-secondary" style="position: absolute; right: 0; top: 0; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.85rem; display: flex; align-items: center; gap: 0.5rem;">☀️ Light Mode</button>
                 <div class="logo">
                     <div class="logo-icon">✨</div>
                     <h1>Insights<span class="highlight">AI</span></h1>
@@ -81,20 +82,22 @@
                 <div class="main-content">
                     <div class="charts-grid">
                         <div class="chart-container glass-panel">
-                    <h3>Sentiment Distribution</h3>
-                    <div class="canvas-wrapper">
-                        <canvas id="sentimentChart"></canvas>
+                            <h3>Sentiment Distribution</h3>
+                            <div class="canvas-wrapper">
+                                <canvas id="sentimentChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="chart-container glass-panel">
+                            <h3>Topic Breakdown</h3>
+                            <div class="canvas-wrapper">
+                                <canvas id="topicChart"></canvas>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div class="chart-container glass-panel">
-                    <h3>Topic Breakdown</h3>
-                    <div class="canvas-wrapper">
-                        <canvas id="topicChart"></canvas>
-                    </div>
-                </div>
-            </div>
+                </div> <!-- End main-content -->
+            </div> <!-- End dashboard-layout -->
 
-            <div class="table-container glass-panel">
+            <div class="table-container glass-panel" style="margin-top: 2rem;">
                 <h3>Detailed Comments</h3>
                 <div class="table-wrapper">
                     <table id="resultsTable">
@@ -104,6 +107,7 @@
                                 <th>Email</th>
                                 <th>NPS</th>
                                 <th>Comment</th>
+                                <th>Summary</th>
                                 <th>Sentiment</th>
                                 <th>Topic</th>
                             </tr>
@@ -112,7 +116,6 @@
                             <!-- Data will be injected here -->
                         </tbody>
                     </table>
-                </div>
                 </div>
             </div>
         </main>
